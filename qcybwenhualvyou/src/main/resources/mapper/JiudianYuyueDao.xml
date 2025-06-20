@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.JiudianYuyueDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.yonghu_id as yonghuId
+        ,a.jiudian_id as jiudianId
+        ,a.jiudian_yuyue_time as jiudianYuyueTime
+        ,a.jiudian_yuyue_number as jiudianYuyueNumber
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.JiudianYuyueView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+        ,jiudian.jiudian_name as jiudianName
+        ,jiudian.jiudian_types as jiudianTypes
+        ,jiudian.jiudian_money as jiudianMoney
+        ,jiudian.jiudian_photo as jiudianPhoto
+        ,jiudian.jiudian_address as jiudianAddress
+        ,jiudian.jiudian_clicknum as jiudianClicknum
+        ,jiudian.zan_number as zanNumber
+        ,jiudian.cai_number as caiNumber
+        ,jiudian.shangxia_types as shangxiaTypes
+        ,jiudian.jiudian_content as jiudianContent
+        ,yonghu.yonghu_name as yonghuName
+        ,yonghu.yonghu_photo as yonghuPhoto
+        ,yonghu.yonghu_phone as yonghuPhone
+        ,yonghu.yonghu_email as yonghuEmail
+        ,yonghu.yonghu_delete as yonghuDelete
+
+        FROM jiudian_yuyue  a
+        left JOIN jiudian jiudian ON a.jiudian_id = jiudian.id
+        left JOIN yonghu yonghu ON a.yonghu_id = yonghu.id
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test="params.yonghuId != null and params.yonghuId != ''">
+                and (
+                    a.yonghu_id = #{params.yonghuId}
+                )
+            </if>
+            <if test="params.jiudianId != null and params.jiudianId != ''">
+                and (
+                    a.jiudian_id = #{params.jiudianId}
+                )
+            </if>
+            <if test=" params.jiudianYuyueTimeStart != '' and params.jiudianYuyueTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.jiudian_yuyue_time) >= UNIX_TIMESTAMP(#{params.jiudianYuyueTimeStart}) ]]>
+            </if>
+            <if test=" params.jiudianYuyueTimeEnd != '' and params.jiudianYuyueTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.jiudian_yuyue_time) <= UNIX_TIMESTAMP(#{params.jiudianYuyueTimeEnd}) ]]>
+            </if>
+            <if test="params.jiudianYuyueNumberStart != null and params.jiudianYuyueNumberStart != ''">
+                <![CDATA[  and a.jiudian_yuyue_number >= #{params.jiudianYuyueNumberStart}   ]]>
+            </if>
+            <if test="params.jiudianYuyueNumberEnd != null and params.jiudianYuyueNumberEnd != ''">
+                <![CDATA[  and a.jiudian_yuyue_number <= #{params.jiudianYuyueNumberEnd}   ]]>
+            </if>
+             <if test="params.jiudianYuyueNumber != null and params.jiudianYuyueNumber != ''">
+                and a.jiudian_yuyue_number = #{params.jiudianYuyueNumber}
+             </if>
+
+                <!-- 判断酒店信息的id不为空 -->
+            <if test=" params.jiudianIdNotNull != '' and params.jiudianIdNotNull != null and params.jiudianIdNotNull != 'null' ">
+                and a.jiudian_id IS NOT NULL
+            </if>
+            <if test=" params.jiudianName != '' and params.jiudianName != null and params.jiudianName != 'null' ">
+                and jiudian.jiudian_name like CONCAT('%',#{params.jiudianName},'%')
+            </if>
+            <if test="params.jiudianTypes != null  and params.jiudianTypes != ''">
+                and jiudian.jiudian_types = #{params.jiudianTypes}
+            </if>
+
+            <if test="params.jiudianMoneyStart != null ">
+                <![CDATA[  and jiudian.jiudian_money >= #{params.jiudianMoneyStart}   ]]>
+            </if>
+            <if test="params.jiudianMoneyEnd != null ">
+                <![CDATA[  and jiudian.jiudian_money <= #{params.jiudianMoneyEnd}   ]]>
+            </if>
+            <if test=" params.jiudianAddress != '' and params.jiudianAddress != null and params.jiudianAddress != 'null' ">
+                and jiudian.jiudian_address like CONCAT('%',#{params.jiudianAddress},'%')
+            </if>
+            <if test="params.jiudianClicknumStart != null  and params.jiudianClicknumStart != '' ">
+                <![CDATA[  and jiudian.jiudian_clicknum >= #{params.jiudianClicknumStart}   ]]>
+            </if>
+            <if test="params.jiudianClicknumEnd != null  and params.jiudianClicknumEnd != '' ">
+                <![CDATA[  and jiudian.jiudian_clicknum <= #{params.jiudianClicknumEnd}   ]]>
+            </if>
+            <if test="params.jiudianClicknum != null  and params.jiudianClicknum != '' ">
+                and jiudian.jiudian_clicknum = #{params.jiudianClicknum}
+            </if>
+            <if test="params.zanNumberStart != null  and params.zanNumberStart != '' ">
+                <![CDATA[  and jiudian.zan_number >= #{params.zanNumberStart}   ]]>
+            </if>
+            <if test="params.zanNumberEnd != null  and params.zanNumberEnd != '' ">
+                <![CDATA[  and jiudian.zan_number <= #{params.zanNumberEnd}   ]]>
+            </if>
+            <if test="params.zanNumber != null  and params.zanNumber != '' ">
+                and jiudian.zan_number = #{params.zanNumber}
+            </if>
+            <if test="params.caiNumberStart != null  and params.caiNumberStart != '' ">
+                <![CDATA[  and jiudian.cai_number >= #{params.caiNumberStart}   ]]>
+            </if>
+            <if test="params.caiNumberEnd != null  and params.caiNumberEnd != '' ">
+                <![CDATA[  and jiudian.cai_number <= #{params.caiNumberEnd}   ]]>
+            </if>
+            <if test="params.caiNumber != null  and params.caiNumber != '' ">
+                and jiudian.cai_number = #{params.caiNumber}
+            </if>
+            <if test="params.shangxiaTypes != null  and params.shangxiaTypes != ''">
+                and jiudian.shangxia_types = #{params.shangxiaTypes}
+            </if>
+
+            <if test=" params.jiudianContent != '' and params.jiudianContent != null and params.jiudianContent != 'null' ">
+                and jiudian.jiudian_content like CONCAT('%',#{params.jiudianContent},'%')
+            </if>
+                <!-- 判断游客的id不为空 -->
+            <if test=" params.yonghuIdNotNull != '' and params.yonghuIdNotNull != null and params.yonghuIdNotNull != 'null' ">
+                and a.yonghu_id IS NOT NULL
+            </if>
+            <if test=" params.yonghuName != '' and params.yonghuName != null and params.yonghuName != 'null' ">
+                and yonghu.yonghu_name like CONCAT('%',#{params.yonghuName},'%')
+            </if>
+            <if test=" params.yonghuPhone != '' and params.yonghuPhone != null and params.yonghuPhone != 'null' ">
+                and yonghu.yonghu_phone like CONCAT('%',#{params.yonghuPhone},'%')
+            </if>
+            <if test=" params.yonghuEmail != '' and params.yonghuEmail != null and params.yonghuEmail != 'null' ">
+                and yonghu.yonghu_email like CONCAT('%',#{params.yonghuEmail},'%')
+            </if>
+            <if test="params.yonghuDeleteStart != null  and params.yonghuDeleteStart != '' ">
+                <![CDATA[  and yonghu.yonghu_delete >= #{params.yonghuDeleteStart}   ]]>
+            </if>
+            <if test="params.yonghuDeleteEnd != null  and params.yonghuDeleteEnd != '' ">
+                <![CDATA[  and yonghu.yonghu_delete <= #{params.yonghuDeleteEnd}   ]]>
+            </if>
+            <if test="params.yonghuDelete != null  and params.yonghuDelete != '' ">
+                and yonghu.yonghu_delete = #{params.yonghuDelete}
+            </if>
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>

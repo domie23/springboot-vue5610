@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.DaoyouDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.username as username
+        ,a.password as password
+        ,a.daoyou_name as daoyouName
+        ,a.daoyou_photo as daoyouPhoto
+        ,a.sex_types as sexTypes
+        ,a.daoyou_phone as daoyouPhone
+        ,a.daoyou_email as daoyouEmail
+        ,a.daoyou_delete as daoyouDelete
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.DaoyouView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM daoyou  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.username != '' and params.username != null and params.username != 'null' ">
+                and a.username like CONCAT('%',#{params.username},'%')
+            </if>
+            <if test=" params.password != '' and params.password != null and params.password != 'null' ">
+                and a.password like CONCAT('%',#{params.password},'%')
+            </if>
+            <if test=" params.daoyouName != '' and params.daoyouName != null and params.daoyouName != 'null' ">
+                and a.daoyou_name like CONCAT('%',#{params.daoyouName},'%')
+            </if>
+            <if test="params.sexTypes != null and params.sexTypes != ''">
+                and a.sex_types = #{params.sexTypes}
+            </if>
+            <if test=" params.daoyouPhone != '' and params.daoyouPhone != null and params.daoyouPhone != 'null' ">
+                and a.daoyou_phone like CONCAT('%',#{params.daoyouPhone},'%')
+            </if>
+            <if test=" params.daoyouEmail != '' and params.daoyouEmail != null and params.daoyouEmail != 'null' ">
+                and a.daoyou_email like CONCAT('%',#{params.daoyouEmail},'%')
+            </if>
+            <if test="params.daoyouDeleteStart != null and params.daoyouDeleteStart != ''">
+                <![CDATA[  and a.daoyou_delete >= #{params.daoyouDeleteStart}   ]]>
+            </if>
+            <if test="params.daoyouDeleteEnd != null and params.daoyouDeleteEnd != ''">
+                <![CDATA[  and a.daoyou_delete <= #{params.daoyouDeleteEnd}   ]]>
+            </if>
+             <if test="params.daoyouDelete != null and params.daoyouDelete != ''">
+                and a.daoyou_delete = #{params.daoyouDelete}
+             </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
